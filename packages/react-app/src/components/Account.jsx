@@ -1,4 +1,5 @@
-import { Button } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { Button, Popover } from "antd";
 import React from "react";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 
@@ -54,11 +55,36 @@ export default function Account({
   blockExplorer,
   isContract,
 }) {
-  const { currentTheme } = useThemeSwitcher();
+  const info = userSigner && (
+    <div>
+      <Balance address={address} provider={localProvider} price={price} size={20} dollar={false} />
+      <Button type="secondary" onClick={logoutOfWeb3Modal}>
+        Logout
+      </Button>
+    </div>
+  );
 
   let accountButtonInfo;
   if (web3Modal?.cachedProvider) {
     accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal };
+    return (
+      <Popover content={info} trigger="click">
+        <Button
+          type="primary"
+          style={{
+            marginLeft: 8,
+            padding: "0px 15px",
+            fontSize: "17px",
+            color: "#111",
+            height: "42px",
+            fontWeight: "600",
+          }}
+          shape="round"
+        >
+          {address?.substr(0, 5) + "..." + address?.substr(-4)}
+        </Button>
+      </Popover>
+    );
   } else {
     accountButtonInfo = { name: "Connect", action: loadWeb3Modal };
   }
@@ -66,20 +92,10 @@ export default function Account({
   const display = !minimized && (
     <span>
       {address && (
-        <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
-      )}
-      <Balance address={address} provider={localProvider} price={price} size={20} />
-      {!isContract && (
-        <Wallet
-          address={address}
-          provider={localProvider}
-          signer={userSigner}
-          ensProvider={mainnetProvider}
-          price={price}
-          color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          size={22}
-          padding={"0px"}
-        />
+        <>
+          <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
+          <Balance address={address} provider={localProvider} price={price} size={20} />
+        </>
       )}
     </span>
   );
@@ -88,7 +104,19 @@ export default function Account({
     <div style={{ display: "flex" }}>
       {display}
       {web3Modal && (
-        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action}>
+        <Button
+          type="primary"
+          style={{
+            marginLeft: 8,
+            padding: "0px 36px",
+            fontSize: "17px",
+            color: "#111",
+            height: "42px",
+            fontWeight: "600",
+          }}
+          shape="round"
+          onClick={accountButtonInfo.action}
+        >
           {accountButtonInfo.name}
         </Button>
       )}

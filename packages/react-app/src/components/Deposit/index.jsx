@@ -16,7 +16,7 @@ export default function Deposit({ customContract, provider, name, price, chainId
   return (
     <div className="deposit-wrapper">
       <div className="pool-balance">
-        <Balance address={address} provider={provider} price={price} size={88} />
+        <Balance address={contract?.address ?? ""} provider={provider} price={price} size={88} />
       </div>
       <div className="balance-info">IN PRIZE POOL</div>
       <div className="deposit-form">

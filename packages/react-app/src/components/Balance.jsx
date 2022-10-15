@@ -31,7 +31,7 @@ const { utils } = require("ethers");
 **/
 
 export default function Balance(props) {
-  const [dollarMode, setDollarMode] = useState(true);
+  const [dollarMode, setDollarMode] = useState(props.dollar ?? true);
 
   let localProviderPollingTime = getRPCPollTime(props.provider);
 
