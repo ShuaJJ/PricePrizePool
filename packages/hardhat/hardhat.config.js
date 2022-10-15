@@ -22,20 +22,9 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
-
-function mnemonic() {
-  try {
-    return fs.readFileSync("./mnemonic.txt").toString().trim();
-  } catch (e) {
-    if (defaultNetwork !== "localhost") {
-      console.log(
-        "☢️ WARNING: No mnemonic file created for a deploy account. Try `yarn run generate` and then `yarn run account`."
-      );
-    }
-  }
-  return "";
-}
+const defaultNetwork = "goerli";
+const INFURA_KEY = process.env.INFURA_KEY;
+const DEPLOYER_PRIV_KEY = process.env.DEPLOYER_PRIV_KEY;
 
 module.exports = {
   defaultNetwork,
@@ -67,82 +56,60 @@ module.exports = {
       */
     },
     mainnet: {
-      url: "https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
+      url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
       //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/mainnet", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     goerli: {
-      url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
+      url: `https://goerli.infura.io/v3/${INFURA_KEY}`,
       //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/goerli", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     xdai: {
       url: "https://rpc.xdaichain.com/",
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     fantom: {
       url: "https://rpcapi.fantom.network",
       gasPrice: 1000000000,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     testnetFantom: {
       url: "https://rpc.testnet.fantom.network",
       gasPrice: 1000000000,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     polygon: {
       url: "https://polygon-rpc.com",
       // url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXx/polygon/mainnet", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     mumbai: {
       url: "https://rpc-mumbai.maticvigil.com",
       // url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/polygon/mumbai", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     matic: {
       url: "https://rpc-mainnet.maticvigil.com/",
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     optimism: {
       url: "https://mainnet.optimism.io",
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
       companionNetworks: {
         l1: "mainnet",
       },
     },
     goerliOptimism: {
       url: "https://goerli.optimism.io/",
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
       companionNetworks: {
         l1: "goerli",
       },
     },
     localOptimism: {
       url: "http://localhost:8545",
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
       companionNetworks: {
         l1: "localOptimismL1",
       },
@@ -150,9 +117,7 @@ module.exports = {
     localOptimismL1: {
       url: "http://localhost:9545",
       gasPrice: 0,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
       companionNetworks: {
         l2: "localOptimism",
       },
@@ -161,97 +126,71 @@ module.exports = {
       url: "http://localhost:9650/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43112,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     fujiAvalanche: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43113,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     mainnetAvalanche: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43114,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     testnetHarmony: {
       url: "https://api.s0.b.hmny.io",
       gasPrice: 1000000000,
       chainId: 1666700000,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     mainnetHarmony: {
       url: "https://api.harmony.one",
       gasPrice: 1000000000,
       chainId: 1666600000,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     moonbeam: {
       url: "https://rpc.api.moonbeam.network",
       chainId: 1284,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     moonriver: {
       url: "https://rpc.api.moonriver.moonbeam.network",
       chainId: 1285,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     moonbaseAlpha: {
       url: "https://rpc.api.moonbase.moonbeam.network",
       chainId: 1287,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     moonbeamDevNode: {
       url: "http://127.0.0.1:9933",
       chainId: 1281,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     godwoken: {
       url: "https://godwoken-testnet-v1.ckbapp.dev",
       chainId: 71401,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     arbitrum: {
       url: "https://arb1.arbitrum.io/rpc",
       chainId: 42161,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     goerliArbitrum: {
       url: "https://goerli-rollup.arbitrum.io/rpc/",
       chainId: 421613,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
     devnetArbitrum: {
       url: "https://nitro-devnet.arbitrum.io/rpc",
       chainId: 421612,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [DEPLOYER_PRIV_KEY],
     },
   },
   solidity: {
