@@ -1,4 +1,32 @@
 .App {
   text-align: center;
   padding-left: calc(100vw - 100%);
+  background-image: url(./assets/bgd.jpg);
+  background-repeat: no-repeat;
+  background-size: 60%;
+}
+
+.main-menu.ant-menu-horizontal {
+  border-bottom: none;
+  text-align: center;
+  margin-top: 80px;
+  background-color: transparent;
+}
+
+.main-menu.ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item {
+  width: 120px;
+  margin: 0 1px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.main-menu.ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-selected,
+.main-menu.ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item:hover {
+  background-color: #ECA201;
+}
+
+.main-menu.ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-selected a,
+.main-menu.ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item:hover a {
+  color: #111;
 }
