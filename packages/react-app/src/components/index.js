@@ -5,6 +5,7 @@ export { default as Balance } from "./Balance";
 export { default as Blockie } from "./Blockie";
 export { default as BytesStringInput } from "./BytesStringInput";
 export { default as Contract } from "./Contract";
+export { default as Deposit } from "./Deposit";
 export { default as EtherInput } from "./EtherInput";
 export { default as Events } from "./Events";
 export { default as Faucet } from "./Faucet";

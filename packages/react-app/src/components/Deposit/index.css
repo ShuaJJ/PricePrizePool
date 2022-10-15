@@ -1,0 +1,51 @@
+.deposit-wrapper {
+    margin: auto;
+    width: 70vw;
+}
+
+.pool-balance {
+    margin-top: 48px;
+}
+
+.balance-info {
+    color: #666;
+    font-weight: 700;
+}
+
+.pool-balance span {
+    background-color: #f3ec78;
+    background-image: linear-gradient(45deg, #f3ec78, #af4261);
+    background-size: 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+    -moz-text-fill-color: transparent;
+    font-size: 88px;
+    font-style: italic;
+    line-height: 88px;
+}
+.deposit-form {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 100px 0;
+}
+.deposit-form .ant-input,
+.deposit-form .ant-input-group-addon {
+    height: 66px;
+    font-size: 21px;
+    border-width: 2px;
+    border-radius: 8px;
+    border-color: #ECA201;
+}
+
+.deposit-form .ant-input-group {
+    margin-bottom: 15px;
+}
+
+.deposit-form .deposit-btn {
+    color: #111;
+    font-weight: 600;
+    width: 100%;
+    height: 60px;
+    font-size: 21px;
+}
