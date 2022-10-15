@@ -21,10 +21,18 @@ export default function Deposit({ customContract, provider, name, price, chainId
       <div className="balance-info">IN PRIZE POOL</div>
       <div className="deposit-form">
         <Input addonBefore="$" type="number" placeholder={"My Guess: " + price} />
-        <Input addonAfter="ETH" placeholder="My Bet: Minimum 0.01" />
+        <Input addonAfter="ETH" type="number" placeholder="My Bet: Minimum 0.01" />
         <Button className="deposit-btn" type="primary">
           Deposit
         </Button>
+        <a
+          href="https://jojos-metaverse.gitbook.io/priceprizepool/"
+          target="_blank"
+          className="instructions"
+          rel="noreferrer"
+        >
+          HOW TO PLAY?
+        </a>
       </div>
     </div>
   );
