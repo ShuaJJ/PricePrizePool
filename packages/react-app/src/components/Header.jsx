@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "antd";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 // displays a page header
 
@@ -10,21 +10,12 @@ export default function Header({ link, title, subTitle, ...props }) {
     <div style={{ display: "flex", justifyContent: "space-between", padding: "1.2rem" }}>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, alignItems: "start" }}>
         <a href={link} target="_blank" rel="noopener noreferrer">
-          <Title level={4} style={{ margin: "0 0.5rem 0 0" }}>
-            {title}
+          <Title level={6} style={{ margin: "0 0.5rem 0 0" }}>
+            <img style={{ width: "60px", marginRight: "8px" }} src="/logo.png" /> Price Prize Pool
           </Title>
         </a>
-        <Text type="secondary" style={{ textAlign: "left" }}>
-          {subTitle}
-        </Text>
       </div>
       {props.children}
     </div>
   );
 }
-
-Header.defaultProps = {
-  link: "https://github.com/scaffold-eth/scaffold-eth",
-  title: "🏗 Scaffold-Eth",
-  subTitle: "Forkable Ethereum dev stack focused on fast product iteration",
-};
