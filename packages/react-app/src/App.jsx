@@ -47,9 +47,7 @@ const initialNetwork = NETWORKS.goerli; // <------- select your target frontend 
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
-const NETWORKCHECK = true;
 const USE_BURNER_WALLET = false; // toggle burner wallet feature
-const USE_NETWORK_SELECTOR = false;
 
 const web3Modal = Web3ModalSetup();
 
@@ -67,9 +65,9 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const location = useLocation();
 
+  const selectedNetwork = networkOptions[0];
   const targetNetwork = NETWORKS[selectedNetwork];
 
   // 🔭 block explorer URL
