@@ -9,6 +9,8 @@ export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 
 export const ALCHEMY_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
+export const APP_NAME = "PricePrizePool";
+
 /*
 Decrease the number of RPC calls by passing this value to hooks
 with pollTime (useContractReader, useBalance, etc.)

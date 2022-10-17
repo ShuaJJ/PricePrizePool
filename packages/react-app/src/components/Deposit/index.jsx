@@ -1,17 +1,14 @@
-import { useContractLoader } from "eth-hooks";
+import { useContractReader } from "eth-hooks";
 import Countdown, { zeroPad } from "react-countdown";
 import Balance from "../Balance";
 import "./index.css";
 import { Button, Input } from "antd";
+import { APP_NAME, RPC_POLL_TIME } from "../../constants";
 
-export default function Deposit({ customContract, provider, name, price, chainId, address, contractConfig }) {
-  const contracts = useContractLoader(provider, contractConfig, chainId);
-  let contract;
-  if (!customContract) {
-    contract = contracts ? contracts[name] : "";
-  } else {
-    contract = customContract;
-  }
+export default function Deposit({ provider, price, readContracts, writeContracts }) {
+  const duration = useContractReader(readContracts, APP_NAME, "betPeriodSeconds", [], RPC_POLL_TIME);
+  const roundStartedAt = useContractReader(readContracts, APP_NAME, "roundStartedAt", [], RPC_POLL_TIME);
+  const contractAddress = readContracts[APP_NAME]?.address;
 
   const countDown = ({ hours, minutes, seconds, completed }) => {
     if (completed) {
@@ -32,10 +29,10 @@ export default function Deposit({ customContract, provider, name, price, chainId
   return (
     <div className="deposit-wrapper">
       <div className="pool-balance">
-        <Balance address={contract?.address ?? ""} provider={provider} price={price} size={88} />
+        <Balance address={contractAddress ?? ""} provider={provider} price={price} size={88} />
       </div>
       <div className="balance-info">IN PRIZE POOL</div>
-      <Countdown date={Date.now() + 500000} renderer={countDown} />
+      {duration && roundStartedAt && <Countdown date={roundStartedAt * 1000 + duration * 1000} renderer={countDown} />}
       <div className="deposit-form">
         <Input addonBefore="$" type="number" placeholder={"My Guess: " + price} />
         <Input addonAfter="ETH" type="number" placeholder="My Bet: Minimum 0.01" />
