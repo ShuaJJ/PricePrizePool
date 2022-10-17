@@ -74,3 +74,9 @@
     margin-left: -6px;
     margin-top: 8px;
 }
+
+.deposit-form .ant-input-group-addon {
+    width: 66px;
+    background-color: #ECA201;
+    color: #111;
+}

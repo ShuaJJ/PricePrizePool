@@ -92,7 +92,7 @@ export default function Deposit({ provider, price, readContracts, writeContracts
       {duration && roundStartedAt && <Countdown date={roundStartedAt * 1000 + duration * 1000} renderer={countDown} />}
       <div className="deposit-form">
         <Input
-          addonBefore="$"
+          addonBefore="USD"
           type="number"
           placeholder={"My Guess: " + price}
           onChange={onGuessChange}

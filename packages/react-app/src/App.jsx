@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import { Account, Deposit, Header } from "./components";
+import Prize from "./components/Prize";
 import { NETWORKS, ALCHEMY_KEY, RPC_POLL_TIME } from "./constants";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
@@ -161,7 +162,15 @@ function App(props) {
           />
         </Route>
         <Route path="/exampleui">
-          <div>Example</div>
+          <Prize
+            price={price}
+            provider={localProvider}
+            userSigner={userSigner}
+            tx={tx}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            isCorrectNetwork={localChainId === selectedChainId}
+          />
         </Route>
       </Switch>
     </div>

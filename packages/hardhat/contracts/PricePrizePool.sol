@@ -24,7 +24,7 @@ contract PricePrizePool is Ownable, AccessControl {
 
   // Store all the bets
   // Structure is bets[roundId][guess][user's address] => how much user depositted
-  mapping(uint32 => mapping(uint32 => mapping(address => uint256))) public bets;
+  mapping(uint32 => mapping(address => mapping(uint32 => uint256))) public bets;
 
   // Store the total amount of deposits of each guess
   mapping(uint32 => mapping(uint32 => uint256)) public guessTotalDeposit;
@@ -71,7 +71,7 @@ contract PricePrizePool is Ownable, AccessControl {
     require(msg.value >= 10 ** 16, "Minimum deposit is 0.01!");
     require(!_isGuessTimeOver(), "Guessing time is over!");
 
-    bets[roundId][_guess][msg.sender] += msg.value;
+    bets[roundId][msg.sender][_guess] += msg.value;
     guessTotalDeposit[roundId][_guess] += msg.value;
     roundTotal += msg.value;
 
@@ -150,7 +150,7 @@ contract PricePrizePool is Ownable, AccessControl {
   function claim() external returns (uint256) {
     require(_canClaim(), "You cannot claim yet");
 
-    uint256 myDeposit = bets[roundId][winningGuess][msg.sender];
+    uint256 myDeposit = bets[roundId][msg.sender][winningGuess];
     if (myDeposit > 0) {
       uint256 totalDeposit = guessTotalDeposit[roundId][winningGuess];
       uint256 payout = roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
