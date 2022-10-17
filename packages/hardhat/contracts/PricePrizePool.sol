@@ -155,9 +155,6 @@ contract PricePrizePool is Ownable, AccessControl {
   }
 
   /* ============ Internal Functions ============ */
-  function _abs(int x) internal pure returns (int) {
-    return x >= 0 ? x : -x;
-  }
 
   function _currentTime() internal view virtual returns (uint64) {
       return uint64(block.timestamp);

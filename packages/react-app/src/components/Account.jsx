@@ -1,11 +1,7 @@
-import { UserOutlined } from "@ant-design/icons";
 import { Button, Popover } from "antd";
 import React from "react";
-import { useThemeSwitcher } from "react-css-theme-switcher";
-
 import Address from "./Address";
 import Balance from "./Balance";
-import Wallet from "./Wallet";
 
 /** 
   ~ What it does? ~

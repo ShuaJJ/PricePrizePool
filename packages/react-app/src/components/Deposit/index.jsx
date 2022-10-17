@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { useContractLoader } from "eth-hooks";
 import Balance from "../Balance";
 import "./index.css";

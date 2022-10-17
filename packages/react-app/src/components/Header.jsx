@@ -11,7 +11,7 @@ export default function Header({ link, title, subTitle, ...props }) {
       <div style={{ display: "flex", flexDirection: "column", flex: 1, alignItems: "start" }}>
         <a href={link} target="_blank" rel="noopener noreferrer">
           <Title level={6} style={{ margin: "0 0.5rem 0 0" }}>
-            <img style={{ width: "60px", marginRight: "8px" }} src="/logo.png" /> Price Prize Pool
+            <img alt="logo" style={{ width: "60px", marginRight: "8px" }} src="/logo.png" /> Price Prize Pool
           </Title>
         </a>
       </div>
