@@ -61,7 +61,7 @@ export default function Account({
   );
 
   let accountButtonInfo;
-  if (web3Modal?.cachedProvider) {
+  if (web3Modal?.cachedProvider && userSigner) {
     accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal };
     return (
       <Popover content={info} trigger="click">

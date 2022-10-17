@@ -1,15 +1,15 @@
 import { Menu } from "antd";
 
 import "antd/dist/antd.css";
-import { useUserProviderAndSigner, useContractLoader } from "eth-hooks";
+import { useUserProviderAndSigner, useContractLoader, useGasPrice } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import { Account, Deposit, Header } from "./components";
-import { NETWORKS, ALCHEMY_KEY } from "./constants";
+import { NETWORKS, ALCHEMY_KEY, RPC_POLL_TIME } from "./constants";
 import deployedContracts from "./contracts/hardhat_contracts.json";
-import { getRPCPollTime, Web3ModalSetup } from "./helpers";
+import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -75,6 +75,9 @@ function App(props) {
   const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
   const selectedChainId =
     userSigner && userSigner.provider && userSigner.provider._network && userSigner.provider._network.chainId;
+
+  const gasPrice = useGasPrice(targetNetwork, "fast", RPC_POLL_TIME);
+  const tx = Transactor(userSigner, gasPrice);
 
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: {} };
   const readContracts = useContractLoader(localProvider, contractConfig);
@@ -150,8 +153,11 @@ function App(props) {
           <Deposit
             price={price}
             provider={localProvider}
+            userSigner={userSigner}
+            tx={tx}
             readContracts={readContracts}
             writeContracts={writeContracts}
+            isCorrectNetwork={localChainId === selectedChainId}
           />
         </Route>
         <Route path="/exampleui">
