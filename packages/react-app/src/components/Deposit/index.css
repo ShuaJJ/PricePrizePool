@@ -59,3 +59,18 @@
     margin-top: 8px;
     display: block;
 }
+
+.count-down-item {
+    padding: 8px;
+    background-color: #ECA201;
+    margin-left: 4px;
+    font-size: 16px;
+    color: #111;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.count-down {
+    margin-left: -6px;
+    margin-top: 8px;
+}
