@@ -17,6 +17,11 @@ contract PricePrizePool is Ownable, AccessControl {
   // Only address with this role can set the final winning guess of this round
   bytes32 public constant MANAGE_ROLE = keccak256("MANAGE_ROLE");
 
+  modifier onlyManagerOrOwner {
+      require(msg.sender == owner() || hasRole(MANAGE_ROLE, msg.sender));
+      _;
+  }
+
   // Store all the bets
   // Structure is bets[roundId][guess][user's address] => how much user depositted
   mapping(uint32 => mapping(uint32 => mapping(address => uint256))) public bets;
@@ -25,28 +30,28 @@ contract PricePrizePool is Ownable, AccessControl {
   mapping(uint32 => mapping(uint32 => uint256)) public guessTotalDeposit;
 
   // Store the total deposit of this round
-  uint256 roundTotal;
+  uint256 public roundTotal;
 
   // ETH/USD price feed from Chainlink
   AggregatorV3Interface internal priceFeed;
 
   // The final price of ETH of this round
-  uint32 ethPrice;
+  uint32 public ethPrice;
 
   // The winning guess, which is the closest price to ethPrice
-  uint32 winningGuess;
+  uint32 public winningGuess;
 
   // The id of the current round
-  uint32 roundId;
+  uint32 public roundId;
 
   // The duration when people can bet
-  uint32 internal betPeriodSeconds;
+  uint32 public betPeriodSeconds;
 
   // The start time of this round
-  uint64 internal roundStartedAt;
+  uint64 public roundStartedAt;
 
   // The timestamp when ethPrice is set
-  uint64 priceSetAt;
+  uint64 public priceSetAt;
 
   /* ============ Constructor ============ */
 
@@ -57,8 +62,6 @@ contract PricePrizePool is Ownable, AccessControl {
     betPeriodSeconds = _betPeriodSeconds;
     roundStartedAt = _currentTime();
     roundId = 1;
-
-    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
 
   /// @notice Deposit to make a guess
@@ -78,7 +81,7 @@ contract PricePrizePool is Ownable, AccessControl {
   /// @notice Update the manage role
   /// @param _oldManager the previous account who has the manage role
   /// @param _newManager the account who will be assigned the manage role
-  function updateManageRole(address _oldManager, address _newManager) external onlyRole(DEFAULT_ADMIN_ROLE) {
+  function updateManageRole(address _oldManager, address _newManager) external onlyOwner {
     if (hasRole(MANAGE_ROLE, _oldManager)) {
       _revokeRole(MANAGE_ROLE, _oldManager);
     }
@@ -86,7 +89,9 @@ contract PricePrizePool is Ownable, AccessControl {
   }
 
   /// @notice Set the ethPrice
-  function setFinalPrice() external onlyRole(MANAGE_ROLE) {
+  function setFinalPrice() external onlyManagerOrOwner {
+      require(_isGuessTimeOver(), "Guess time is not over yet!");
+
       (
           /*uint80 roundID*/,
           int price,
@@ -131,7 +136,8 @@ contract PricePrizePool is Ownable, AccessControl {
   }
 
   /// @notice Start a new round
-  function nextRound() external onlyRole(MANAGE_ROLE) {
+  function nextRound() external onlyManagerOrOwner {
+      require(_canClaim(), "This round is not finished yet");
       roundId++;
       roundStartedAt = _currentTime();
       ethPrice = 0;
