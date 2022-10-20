@@ -1,0 +1,27 @@
+.prize-wrapper {
+    max-width: 560px;
+    margin: 120px auto;
+}
+
+.info-row {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ECA201;
+    text-align: right;
+}
+
+.info-col {
+    font-size: 18px;
+    color: #888;
+    line-height: 36px;
+    text-align: left;
+}
+
+.check-btn.ant-btn {
+    color: #111;
+    font-weight: 600;
+    width: 100%;
+    height: 48px;
+    font-size: 17px;
+    margin-top: 32px;
+}

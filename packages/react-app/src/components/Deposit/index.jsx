@@ -20,7 +20,7 @@ export default function Deposit({ provider, price, readContracts, writeContracts
   const countDown = ({ hours, minutes, seconds, completed }) => {
     if (completed) {
       // Render a completed state
-      return <div>Guessing time is over!</div>;
+      return <div style={{ color: "#f3ec78" }}>Guessing time is over!</div>;
     } else {
       // Render a countdown
       return (
