@@ -3,8 +3,16 @@
     width: 70vw;
 }
 
-.pool-balance {
+.round-id {
     margin-top: 48px;
+    padding: 4px 24px;
+    background-color: #ECA201;
+    display: inline-block;
+    border-radius: 4px;
+    color: #111;
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 8px;
 }
 
 .balance-info {
@@ -58,21 +66,6 @@
     font-style: italic;
     margin-top: 8px;
     display: block;
-}
-
-.count-down-item {
-    padding: 8px;
-    background-color: #ECA201;
-    margin-left: 4px;
-    font-size: 16px;
-    color: #111;
-    border-radius: 4px;
-    font-weight: 700;
-}
-
-.count-down {
-    margin-left: -6px;
-    margin-top: 8px;
 }
 
 .deposit-form .ant-input-group-addon {

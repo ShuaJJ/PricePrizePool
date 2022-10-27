@@ -1,10 +1,10 @@
 import { useContractReader } from "eth-hooks";
-import Countdown, { zeroPad } from "react-countdown";
 import Balance from "../Balance";
 import "./index.css";
 import { Button, Input, notification } from "antd";
 import { APP_NAME, RPC_POLL_TIME } from "../../constants";
 import { useState } from "react";
+import PPCountDown from "../CountDown";
 const { ethers } = require("ethers");
 
 export default function Deposit({ provider, price, readContracts, writeContracts, isCorrectNetwork, userSigner, tx }) {
@@ -14,24 +14,9 @@ export default function Deposit({ provider, price, readContracts, writeContracts
   const [depositHash, setDepositHash] = useState();
 
   const duration = useContractReader(readContracts, APP_NAME, "betPeriodSeconds", [], RPC_POLL_TIME);
+  const roundId = useContractReader(readContracts, APP_NAME, "roundId", [], RPC_POLL_TIME);
   const roundStartedAt = useContractReader(readContracts, APP_NAME, "roundStartedAt", [], RPC_POLL_TIME);
   const contractAddress = readContracts[APP_NAME]?.address;
-
-  const countDown = ({ hours, minutes, seconds, completed }) => {
-    if (completed) {
-      // Render a completed state
-      return <div style={{ color: "#f3ec78" }}>Guessing time is over!</div>;
-    } else {
-      // Render a countdown
-      return (
-        <div className="count-down">
-          <span className="count-down-item">{zeroPad(hours)}</span> :
-          <span className="count-down-item">{zeroPad(minutes)}</span> :
-          <span className="count-down-item">{zeroPad(seconds)}</span>
-        </div>
-      );
-    }
-  };
 
   const onGuessChange = e => {
     setGuess(e.target.value);
@@ -83,13 +68,32 @@ export default function Deposit({ provider, price, readContracts, writeContracts
     });
   };
 
+  const now = new Date();
+  const guessingEndTime = roundStartedAt && duration ? (parseInt(roundStartedAt) + parseInt(duration)) * 1000 : 0;
+  const guessingTimeIsOver = now.getTime() > guessingEndTime;
+  const roundOverTime = guessingEndTime + 3600 * 24 * 1000;
+  const roundIsOver = roundOverTime < now.getTime();
+
   return (
     <div className="deposit-wrapper">
+      <div className="round-id">Round #{roundId}</div>
       <div className="pool-balance">
         <Balance address={contractAddress ?? ""} provider={provider} price={price} size={88} />
       </div>
       <div className="balance-info">IN PRIZE POOL</div>
-      {duration && roundStartedAt && <Countdown date={roundStartedAt * 1000 + duration * 1000} renderer={countDown} />}
+      {guessingEndTime && !guessingTimeIsOver && (
+        <PPCountDown date={guessingEndTime} completedText="Guessing time is over! Please wait for next round." />
+      )}
+      {guessingEndTime && guessingTimeIsOver && (
+        <>
+          {!roundIsOver && (
+            <div style={{ color: "#f3ec78" }}>
+              Guessing time is over! The final ETH price will be set and next round will start in
+            </div>
+          )}
+          <PPCountDown date={roundOverTime} completedText="Please refresh to enter next round" />
+        </>
+      )}
       <div className="deposit-form">
         <Input
           addonBefore="USD"
