@@ -1,22 +1,23 @@
-import { useContractReader } from "eth-hooks";
 import Balance from "../Balance";
 import "./index.css";
 import { Button, Input, notification } from "antd";
-import { APP_NAME, RPC_POLL_TIME } from "../../constants";
 import { useState } from "react";
 import PPCountDown from "../CountDown";
 const { ethers } = require("ethers");
 
-export default function Deposit({ provider, price, readContracts, writeContracts, isCorrectNetwork, userSigner, tx }) {
+export default function Deposit({ provider, price, generalInfo, writeContracts, isCorrectNetwork, userSigner, tx }) {
   const [guess, setGuess] = useState();
   const [bet, setBet] = useState();
   const [loading, setLoading] = useState(false);
   const [depositHash, setDepositHash] = useState();
 
-  const duration = useContractReader(readContracts, APP_NAME, "betPeriodSeconds", [], RPC_POLL_TIME);
-  const roundId = useContractReader(readContracts, APP_NAME, "roundId", [], RPC_POLL_TIME);
-  const roundStartedAt = useContractReader(readContracts, APP_NAME, "roundStartedAt", [], RPC_POLL_TIME);
-  const contractAddress = readContracts[APP_NAME]?.address;
+  var duration, roundId, roundStartedAt, roundTotal;
+  if (generalInfo) {
+    roundId = generalInfo[0];
+    duration = generalInfo[1];
+    roundStartedAt = generalInfo[2];
+    roundTotal = generalInfo[3];
+  }
 
   const onGuessChange = e => {
     setGuess(e.target.value);
@@ -69,7 +70,7 @@ export default function Deposit({ provider, price, readContracts, writeContracts
   };
 
   const now = new Date();
-  const guessingEndTime = roundStartedAt && duration ? (parseInt(roundStartedAt) + parseInt(duration)) * 1000 : 0;
+  const guessingEndTime = roundStartedAt && duration ? (roundStartedAt.toNumber() + parseInt(duration)) * 1000 : 0;
   const guessingTimeIsOver = now.getTime() > guessingEndTime;
   const roundOverTime = guessingEndTime + 3600 * 24 * 1000;
   const roundIsOver = roundOverTime < now.getTime();
@@ -77,9 +78,7 @@ export default function Deposit({ provider, price, readContracts, writeContracts
   return (
     <div className="deposit-wrapper">
       <div className="round-id">Round #{roundId}</div>
-      <div className="pool-balance">
-        <Balance address={contractAddress ?? ""} provider={provider} price={price} size={88} />
-      </div>
+      <div className="pool-balance">{roundTotal && ethers.utils.formatEther(roundTotal)}</div>
       <div className="balance-info">IN PRIZE POOL</div>
       {guessingEndTime && !guessingTimeIsOver && (
         <PPCountDown date={guessingEndTime} completedText="Guessing time is over! Please wait for next round." />

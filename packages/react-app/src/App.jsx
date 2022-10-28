@@ -1,14 +1,14 @@
 import { Menu } from "antd";
 
 import "antd/dist/antd.css";
-import { useUserProviderAndSigner, useContractLoader, useGasPrice } from "eth-hooks";
+import { useUserProviderAndSigner, useContractLoader, useContractReader, useGasPrice } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import { Account, Deposit, Header } from "./components";
 import Prize from "./components/Prize";
-import { NETWORKS, ALCHEMY_KEY, RPC_POLL_TIME } from "./constants";
+import { NETWORKS, ALCHEMY_KEY, RPC_POLL_TIME, APP_NAME } from "./constants";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
@@ -84,6 +84,8 @@ function App(props) {
   const readContracts = useContractLoader(localProvider, contractConfig);
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
 
+  const generalInfo = useContractReader(readContracts, APP_NAME, "generalInfo", [], RPC_POLL_TIME);
+
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -156,7 +158,7 @@ function App(props) {
             provider={localProvider}
             userSigner={userSigner}
             tx={tx}
-            readContracts={readContracts}
+            generalInfo={generalInfo}
             writeContracts={writeContracts}
             isCorrectNetwork={localChainId === selectedChainId}
           />

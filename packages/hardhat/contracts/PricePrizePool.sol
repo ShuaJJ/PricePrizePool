@@ -12,6 +12,9 @@ contract PricePrizePool is Ownable, AccessControl {
 
   event Deposited(uint32 indexed roundId, address indexed user, uint32 indexed guess, uint256 amount);
 
+  /// @notice Max history rounds will be checked
+  uint8 public constant MAX_CARDINALITY = 5;
+
   // The Automation Registry address will be assigned this role
   // It's updatable by the owner of this contract
   // Only address with this role can set the final winning guess of this round
@@ -146,18 +149,35 @@ contract PricePrizePool is Ownable, AccessControl {
       payable(owner()).transfer(address(this).balance);
   }
 
+  function myWinnings() public view returns (uint256) {
+    uint256 res = 0;
+    uint256 previousRound = _safeSub(roundId, MAX_CARDINALITY);
+    for (uint i=roundId; i>=previousRound; i++) {
+      uint256 myDeposit = bets[roundId][msg.sender][winningGuess];
+      if (myDeposit > 0) {
+        uint256 totalDeposit = guessTotalDeposit[roundId][winningGuess];
+        uint256 payout = roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
+        res += payout;
+      }
+    }
+    return res;
+  }
+
   /// @notice Claim the prize! 5% fee will be charged.
   function claim() external returns (uint256) {
-    require(_canClaim(), "You cannot claim yet");
 
-    uint256 myDeposit = bets[roundId][msg.sender][winningGuess];
-    if (myDeposit > 0) {
-      uint256 totalDeposit = guessTotalDeposit[roundId][winningGuess];
-      uint256 payout = roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
-      payable(msg.sender).transfer(payout);
-      return payout;
-    }
-    return 0;
+    uint256 myWinning = myWinnings();
+    require(myWinning > 0, "Nothing to claim");
+    payable(msg.sender).transfer(myWinning);
+    return myWinning;
+  }
+
+  function generalInfo() external view returns (uint32, uint32, uint64, uint256) {
+    return (roundId, betPeriodSeconds, roundStartedAt, roundTotal);
+  }
+
+  function priceInfo() external view returns (uint32, uint64, uint32) {
+    return (ethPrice, priceSetAt, winningGuess);
   }
 
   /* ============ Internal Functions ============ */
@@ -173,5 +193,9 @@ contract PricePrizePool is Ownable, AccessControl {
 
   function _canClaim() internal view virtual returns (bool) {
       return _isGuessTimeOver() && ethPrice > 0 && winningGuess > 0;
+  }
+
+  function _safeSub(uint256 a, uint256 b) internal pure returns (uint256) {
+    return a >= b ? (a - b + 1) : 0;
   }
 }

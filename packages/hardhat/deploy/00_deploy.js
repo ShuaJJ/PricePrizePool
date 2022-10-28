@@ -17,6 +17,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // Getting a previously deployed contract
   const PricePrizePool = await ethers.getContract("PricePrizePool", deployer);
   console.log('PricePrizePool deployed at: ', PricePrizePool.address);
+  await PricePrizePool.updateManageRole(process.env.MANAGER_ADDRESS, process.env.MANAGER_ADDRESS);
   /*  await YourContract.setPurpose("Hello");
   
     // To take ownership of yourContract using the ownable library uncomment next line and add the 
@@ -69,4 +70,4 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   //   console.error(error);
   // }
 };
-module.exports.tags = ["YourContract"];
+module.exports.tags = ["PricePrizePool"];
