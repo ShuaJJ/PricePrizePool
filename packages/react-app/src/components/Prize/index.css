@@ -1,6 +1,6 @@
 .prize-wrapper {
     max-width: 560px;
-    margin: 120px auto;
+    margin: 60px auto;
 }
 
 .info-row {
@@ -24,4 +24,14 @@
     height: 48px;
     font-size: 17px;
     margin-top: 32px;
+}
+
+.prize-page {
+    min-height: 400px;
+}
+
+.claim-info {
+    margin-top: 24px;
+    font-weight: 700;
+    color: red;
 }

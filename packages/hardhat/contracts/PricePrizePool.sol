@@ -12,10 +12,8 @@ contract PricePrizePool is Ownable, AccessControl {
 
   struct Round {
     uint32 roundId;
-    uint256 roundTotal;
     uint32 ethPrice;
-    uint64 priceSetAt;
-    uint32 winningGuess;
+    uint256 roundTotal;
     uint256 notClaimed;
   }
 
@@ -47,6 +45,9 @@ contract PricePrizePool is Ownable, AccessControl {
   // Store the total deposit of this round
   uint256 public roundTotal;
 
+  // Store the unclaimed prize
+  uint256 public toCollect;
+
   // ETH/USD price feed from Chainlink
   AggregatorV3Interface internal priceFeed;
 
@@ -56,6 +57,9 @@ contract PricePrizePool is Ownable, AccessControl {
   // The duration when people can bet
   uint32 public betPeriodSeconds;
 
+  // The time between bet ending time and price set
+  uint32 public priceSetSeconds;
+
   // The start time of this round
   uint64 public roundStartedAt;
 
@@ -63,9 +67,11 @@ contract PricePrizePool is Ownable, AccessControl {
 
   /// @notice Deploy the Price Prize Pool
   /// @param _betPeriodSeconds The duration when people can bet
-  constructor(uint32 _betPeriodSeconds) {
+  /// @param _priceSetSeconds The time between bet ending time and price set
+  constructor(uint32 _betPeriodSeconds, uint32 _priceSetSeconds) {
     priceFeed = AggregatorV3Interface(0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e);
     betPeriodSeconds = _betPeriodSeconds;
+    priceSetSeconds = _priceSetSeconds;
     roundStartedAt = _currentTime();
     roundId = 1;
   }
@@ -94,6 +100,19 @@ contract PricePrizePool is Ownable, AccessControl {
     _setupRole(MANAGE_ROLE, _newManager);
   }
 
+  function changeBetSeconds(uint32 betSeconds) external onlyOwner {
+    betPeriodSeconds = betSeconds;
+  }
+
+  function changePriceSetSeconds(uint32 priceSeconds) external onlyOwner {
+    priceSetSeconds = priceSeconds;
+  }
+
+  function collectBalance() external onlyOwner {
+    payable(owner()).transfer(toCollect);
+    toCollect = 0;
+  }
+
   /// @notice Set the ethPrice
   function setFinalPrice() external onlyManagerOrOwner {
       require(_isGuessTimeOver(), "Guess time is not over yet!");
@@ -106,68 +125,37 @@ contract PricePrizePool is Ownable, AccessControl {
           /*uint80 answeredInRound*/
       ) = priceFeed.latestRoundData();
       uint8 decimals = priceFeed.decimals();
-      uint32 ethPrice = uint32(uint256(price) / 10**(decimals-2));
-      uint64 priceSetAt = _currentTime();
-      uint32 winningGuess = ethPrice;
-
-      if (guessTotalDeposit[roundId][ethPrice] > 0) {
-        winningGuess = ethPrice;
-      } else {
-        uint32 closestGuess = ethPrice;
-        uint32 i = 1;
-        while (i < 10000) {
-          uint32 guessPriceUp = ethPrice + i;
-          uint32 guessPriceDown = ethPrice - i;
-          uint256 depositUp = guessTotalDeposit[roundId][guessPriceUp];
-          uint256 depositDown = guessTotalDeposit[roundId][guessPriceDown];
-          if (depositUp > 0 || depositDown > 0) {
-            if (depositUp > 0 && depositDown > 0) {
-              if (depositUp > depositDown) {
-                closestGuess = guessPriceUp;
-              } else {
-                closestGuess = guessPriceDown;
-              }
-            } else if (depositUp > 0) {
-              closestGuess = guessPriceUp;
-            } else {
-              closestGuess = guessPriceDown;
-            }
-            break;
-          }
-          i += 1;
-        }
-        winningGuess = closestGuess;
-      }
-
+      uint16 ethPrice = uint16(uint256(price) / 10**decimals);
       uint32 index = (roundId - 1) % MAX_CARDINALITY;
       Round memory toRemove = roundRingBuffer[index];
       if (toRemove.notClaimed > 0) {
-        payable(owner()).transfer(toRemove.notClaimed);
+        toCollect += toRemove.notClaimed;
       }
       
       roundRingBuffer[index] = Round({
         ethPrice: ethPrice,
-        winningGuess: winningGuess,
-        priceSetAt: priceSetAt,
         roundId: roundId,
         roundTotal: roundTotal,
         notClaimed: roundTotal
       });
 
+      uint256 totalDeposit = guessTotalDeposit[roundId][ethPrice];
+      if (totalDeposit > 0) {
+        roundTotal = 0;
+      }
+
       roundId++;
       roundStartedAt = _currentTime();
-      roundTotal = 0;
-      
   }
 
   function myWinnings(address player) public view returns (uint256[MAX_CARDINALITY] memory) {
     uint256[MAX_CARDINALITY] memory res;
     for (uint8 i=0; i<MAX_CARDINALITY; i++) {
       Round memory round = roundRingBuffer[i];
-      if (round.roundTotal > 0 && round.winningGuess > 0) {
-        uint256 myDeposit = bets[round.roundId][player][round.winningGuess];
+      if (round.roundTotal > 0 && round.ethPrice > 0) {
+        uint256 myDeposit = bets[round.roundId][player][round.ethPrice];
         if (myDeposit > 0) {
-          uint256 totalDeposit = guessTotalDeposit[round.roundId][round.winningGuess];
+          uint256 totalDeposit = guessTotalDeposit[round.roundId][round.ethPrice];
           uint256 payout = round.roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
           res[i] = payout;
         }
@@ -178,6 +166,9 @@ contract PricePrizePool is Ownable, AccessControl {
 
   /// @notice Claim the prize! 5% fee will be charged.
   function claim() external returns (uint256) {
+
+    require(_canClaim(), "Next round will start in less than 1 minute, cannot claim now!");
+
     uint256[MAX_CARDINALITY] memory myWinning = myWinnings(msg.sender);
     uint256 payout = 0;
     for (uint8 i=0; i<MAX_CARDINALITY; i++) {
@@ -194,17 +185,18 @@ contract PricePrizePool is Ownable, AccessControl {
     return payout;
   }
 
-  function generalInfo() external view returns (uint32, uint32, uint64, uint256) {
-    return (roundId, betPeriodSeconds, roundStartedAt, roundTotal);
+  function generalInfo() external view returns (uint32, uint64, uint64, uint256) {
+    uint64 betEndingTime = roundStartedAt + betPeriodSeconds;
+    return (roundId, betEndingTime, betEndingTime + priceSetSeconds, roundTotal);
   }
 
-  function priceInfo() external view returns (uint32, uint64, uint32) {
+  function priceInfo() external view returns (uint32, uint256, uint32) {
     if (roundId == 1) {
-      return (0, 0, 0);
+      return (1, 0, 0);
     }
     uint32 index = (roundId-2) % MAX_CARDINALITY;
     Round memory lastRound = roundRingBuffer[index];
-    return (lastRound.ethPrice, lastRound.priceSetAt, lastRound.winningGuess);
+    return (lastRound.roundId, lastRound.roundTotal, lastRound.ethPrice);
   }
 
   /* ============ Internal Functions ============ */
@@ -216,5 +208,12 @@ contract PricePrizePool is Ownable, AccessControl {
   function _isGuessTimeOver() internal view virtual returns (bool) {
     uint64 currentTime = _currentTime();
     return currentTime > roundStartedAt + betPeriodSeconds;
+  }
+
+  function _canClaim() internal view virtual returns (bool) {
+    uint64 priceSetTime = roundStartedAt + betPeriodSeconds + priceSetSeconds;
+    uint64 currentTime = _currentTime();
+    uint64 diff = currentTime > priceSetTime ? (currentTime - priceSetTime) : (priceSetTime - currentTime);
+    return diff >= 60;
   }
 }

@@ -6,7 +6,7 @@ import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
-import { Account, Deposit, Header } from "./components";
+import { Account, Contract, Deposit, Header } from "./components";
 import Prize from "./components/Prize";
 import { NETWORKS, ALCHEMY_KEY, RPC_POLL_TIME, APP_NAME } from "./constants";
 import deployedContracts from "./contracts/hardhat_contracts.json";
@@ -149,6 +149,9 @@ function App(props) {
         <Menu.Item key="/exampleui">
           <Link to="/exampleui">Prize</Link>
         </Menu.Item>
+        <Menu.Item key="/test">
+          <Link to="/test">Debug</Link>
+        </Menu.Item>
       </Menu>
 
       <Switch>
@@ -165,13 +168,26 @@ function App(props) {
         </Route>
         <Route path="/exampleui">
           <Prize
+            generalInfo={generalInfo}
             price={price}
             provider={localProvider}
             userSigner={userSigner}
             tx={tx}
+            address={address}
             readContracts={readContracts}
             writeContracts={writeContracts}
             isCorrectNetwork={localChainId === selectedChainId}
+          />
+        </Route>
+        <Route path="/test">
+          <Contract
+            name="PricePrizePool"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
           />
         </Route>
       </Switch>

@@ -1,22 +1,29 @@
-import Balance from "../Balance";
 import "./index.css";
 import { Button, Input, notification } from "antd";
 import { useState } from "react";
 import PPCountDown from "../CountDown";
 const { ethers } = require("ethers");
 
-export default function Deposit({ provider, price, generalInfo, writeContracts, isCorrectNetwork, userSigner, tx }) {
+export default function Deposit({
+  provider,
+  price,
+  generalInfo,
+  writeContracts,
+  guessingEndTime,
+  isCorrectNetwork,
+  userSigner,
+  tx,
+}) {
   const [guess, setGuess] = useState();
   const [bet, setBet] = useState();
   const [loading, setLoading] = useState(false);
   const [depositHash, setDepositHash] = useState();
 
-  var duration, roundId, roundStartedAt, roundTotal;
+  var roundTotal,
+    guessingEndTime = 0;
   if (generalInfo) {
-    roundId = generalInfo[0];
-    duration = generalInfo[1];
-    roundStartedAt = generalInfo[2];
     roundTotal = generalInfo[3];
+    guessingEndTime = generalInfo[1].toNumber() * 1000;
   }
 
   const onGuessChange = e => {
@@ -59,7 +66,7 @@ export default function Deposit({ provider, price, generalInfo, writeContracts, 
     setLoading(true);
 
     const value = ethers.utils.parseEther(bet.toString());
-    const finalGuess = parseInt(parseFloat(guess) * 100);
+    const finalGuess = parseInt(guess);
 
     const result = tx(writeContracts.PricePrizePool.deposit(finalGuess, { value: value }), update => {
       if (update) {
@@ -70,39 +77,29 @@ export default function Deposit({ provider, price, generalInfo, writeContracts, 
   };
 
   const now = new Date();
-  const guessingEndTime = roundStartedAt && duration ? (roundStartedAt.toNumber() + parseInt(duration)) * 1000 : 0;
   const guessingTimeIsOver = now.getTime() > guessingEndTime;
-  const roundOverTime = guessingEndTime + 3600 * 24 * 1000;
-  const roundIsOver = roundOverTime < now.getTime();
 
   return (
     <div className="deposit-wrapper">
-      <div className="round-id">Round #{roundId}</div>
+      <PPCountDown isPrize={false} generalInfo={generalInfo} />
       <div className="pool-balance">{roundTotal && ethers.utils.formatEther(roundTotal)}</div>
       <div className="balance-info">IN PRIZE POOL</div>
-      {guessingEndTime && !guessingTimeIsOver && (
-        <PPCountDown date={guessingEndTime} completedText="Guessing time is over! Please wait for next round." />
-      )}
-      {guessingEndTime && guessingTimeIsOver && (
-        <>
-          {!roundIsOver && (
-            <div style={{ color: "#f3ec78" }}>
-              Guessing time is over! The final ETH price will be set and next round will start in
-            </div>
-          )}
-          <PPCountDown date={roundOverTime} completedText="Please refresh to enter next round" />
-        </>
-      )}
       <div className="deposit-form">
         <Input
           addonBefore="USD"
           type="number"
-          placeholder={"My Guess: " + price}
+          placeholder={"My Guess: " + price.toFixed(0)}
           onChange={onGuessChange}
           value={guess}
         />
         <Input addonAfter="ETH" type="number" placeholder="My Bet: Minimum 0.01" onChange={onBetChange} value={bet} />
-        <Button className="deposit-btn" type="primary" onClick={deposit} loading={loading}>
+        <Button
+          className="deposit-btn"
+          type="primary"
+          onClick={deposit}
+          loading={loading}
+          disabled={guessingTimeIsOver}
+        >
           Deposit
         </Button>
         {depositHash && (

@@ -1,14 +1,40 @@
+
+.round-id {
+    font-style: italic;
+    font-size: 21px;
+    line-height: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.count-wrapper {
+    font-weight: 700;
+    color: #111;
+    padding: 8px 24px;
+    background-color: #ECA201;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 48px;
+    margin-bottom: 15px;
+}
 .count-down-item {
     padding: 8px;
-    background-color: #ECA201;
     margin-left: 4px;
     font-size: 16px;
-    color: #111;
-    border-radius: 4px;
+    font-weight: 700;
+}
+.count-down {
+    margin-left: -6px;
+    color: #fff;
+}
+
+.complete-text {
+    color: #fff;
+    font-size: 16px;
     font-weight: 700;
 }
 
-.count-down {
-    margin-left: -6px;
-    margin-top: 8px;
+.extra-info {
+    max-width: 250px;
+    line-height: 18px;
+    margin-top: 12px;
 }
