@@ -133,18 +133,18 @@ contract PricePrizePool is Ownable, AccessControl {
       if (toRemove.notClaimed > 0) {
         toCollect += toRemove.notClaimed;
       }
-      
-      roundRingBuffer[index] = Round({
-        ethPrice: ethPrice,
-        roundId: roundId,
-        roundTotal: roundTotal,
-        notClaimed: roundTotal
-      });
 
+      uint256 nc = roundTotal;
       uint256 totalDeposit = guessTotalDeposit[roundId][ethPrice];
       if (totalDeposit > 0) {
         roundTotal = 0;
       }
+      roundRingBuffer[index] = Round({
+        ethPrice: ethPrice,
+        roundId: roundId,
+        roundTotal: nc,
+        notClaimed: roundTotal
+      });
 
       roundId++;
       roundStartedAt = _currentTime();
