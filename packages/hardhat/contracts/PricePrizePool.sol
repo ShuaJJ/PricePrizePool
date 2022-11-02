@@ -109,8 +109,10 @@ contract PricePrizePool is Ownable, AccessControl {
   }
 
   function collectBalance() external onlyOwner {
-    payable(owner()).transfer(toCollect);
-    toCollect = 0;
+    if (toCollect > 0) {
+      payable(owner()).transfer(toCollect);
+      toCollect = 0;
+    }
   }
 
   /// @notice Set the ethPrice
@@ -175,6 +177,7 @@ contract PricePrizePool is Ownable, AccessControl {
       uint256 win = myWinning[i];
       if (win > 0) {
         Round memory round = roundRingBuffer[i];
+        bets[round.roundId][msg.sender][round.ethPrice] = 0;
         round.notClaimed -= win;
         roundRingBuffer[i] = round;
         payout += win;

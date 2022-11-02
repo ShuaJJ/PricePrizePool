@@ -4,6 +4,7 @@ import { Button, Col, Row } from "antd";
 import { APP_NAME, RPC_POLL_TIME } from "../../constants";
 import { useState } from "react";
 import PPCountDown from "../CountDown";
+import TxHashLink from "../TxHashLink";
 const { ethers } = require("ethers");
 
 export default function Prize({
@@ -18,6 +19,7 @@ export default function Prize({
   address,
   tx,
 }) {
+  const [claimHash, setClaimHash] = useState();
   const priceInfo = useContractReader(readContracts, APP_NAME, "priceInfo", [], RPC_POLL_TIME);
   const myWinnings = useContractReader(readContracts, APP_NAME, "myWinnings", [address], RPC_POLL_TIME);
   var ethPrice,
@@ -27,7 +29,9 @@ export default function Prize({
   if (priceInfo) {
     roundId = priceInfo[0];
     ethPrice = priceInfo[2];
-    roundTotal = ethers.utils.formatEther(priceInfo[1] * price);
+    roundTotal = ethers.utils.formatEther(priceInfo[1]);
+    console.log("AAAAA", ethPrice);
+    console.log("BBBB", roundTotal);
   }
   if (myWinnings) {
     for (var i = 0; i < myWinnings.length; i++) {
@@ -40,6 +44,13 @@ export default function Prize({
 
   const check = () => {
     setLoading(true);
+    const result = tx(writeContracts.PricePrizePool.claim(), update => {
+      if (update) {
+        setClaimHash(update.hash);
+      }
+      setLoading(false);
+    });
+    console.log("AAAAAA", result);
   };
 
   return (
@@ -47,6 +58,7 @@ export default function Prize({
       <PPCountDown isPrize={true} generalInfo={generalInfo} />
       {ethPrice > 0 && (
         <div className="prize-wrapper">
+          <div></div>
           <Row className="info-row">
             <Col className="info-col" flex="180px">
               Round
@@ -82,6 +94,7 @@ export default function Prize({
               Claim
             </Button>
           )}
+          <TxHashLink hash={claimHash} />
         </div>
       )}
     </div>

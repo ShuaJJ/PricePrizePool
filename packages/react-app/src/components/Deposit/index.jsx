@@ -2,6 +2,7 @@ import "./index.css";
 import { Button, Input, notification } from "antd";
 import { useState } from "react";
 import PPCountDown from "../CountDown";
+import TxHashLink from "../TxHashLink";
 const { ethers } = require("ethers");
 
 export default function Deposit({
@@ -102,16 +103,7 @@ export default function Deposit({
         >
           Deposit
         </Button>
-        {depositHash && (
-          <a
-            target="_blank"
-            style={{ marginTop: "4px", textDecoration: "underline", display: "block" }}
-            href={"https://goerli.etherscan.io/tx/" + depositHash}
-            rel="noreferrer"
-          >
-            {depositHash}
-          </a>
-        )}
+        <TxHashLink hash={depositHash} />
         <a
           href="https://jojos-metaverse.gitbook.io/priceprizepool/"
           target="_blank"
