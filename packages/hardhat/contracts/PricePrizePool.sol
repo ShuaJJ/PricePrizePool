@@ -23,7 +23,7 @@ contract PricePrizePool is Ownable, AccessControl {
   uint8 public constant MAX_CARDINALITY = 7;
 
   /// @notice Rounds ring buffer array.
-  Round[MAX_CARDINALITY] private roundRingBuffer;
+  Round[MAX_CARDINALITY] public roundRingBuffer;
 
   // The Automation Registry address will be assigned this role
   // It's updatable by the owner of this contract
@@ -135,15 +135,18 @@ contract PricePrizePool is Ownable, AccessControl {
       }
 
       uint256 nc = roundTotal;
+      uint256 rt = roundTotal;
       uint256 totalDeposit = guessTotalDeposit[roundId][ethPrice];
       if (totalDeposit > 0) {
         roundTotal = 0;
+      } else {
+        nc = 0;
       }
       roundRingBuffer[index] = Round({
         ethPrice: ethPrice,
         roundId: roundId,
-        roundTotal: nc,
-        notClaimed: roundTotal
+        roundTotal: rt,
+        notClaimed: nc
       });
 
       roundId++;
@@ -154,52 +157,37 @@ contract PricePrizePool is Ownable, AccessControl {
     uint256[MAX_CARDINALITY] memory res;
     for (uint8 i=0; i<MAX_CARDINALITY; i++) {
       Round memory round = roundRingBuffer[i];
-      if (round.roundTotal > 0 && round.ethPrice > 0) {
-        uint256 myDeposit = bets[round.roundId][player][round.ethPrice];
-        if (myDeposit > 0) {
-          uint256 totalDeposit = guessTotalDeposit[round.roundId][round.ethPrice];
-          uint256 payout = round.roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
-          res[i] = payout;
-        }
-      }
+      res[i] = bets[round.roundId][player][round.ethPrice];
     }
     return res;
   }
 
   /// @notice Claim the prize! 5% fee will be charged.
-  function claim() external returns (uint256) {
+  function claim(uint32 _roundId) external returns (uint256) {
 
     require(_canClaim(), "Next round will start in less than 1 minute, cannot claim now!");
 
-    uint256[MAX_CARDINALITY] memory myWinning = myWinnings(msg.sender);
-    uint256 payout = 0;
-    for (uint8 i=0; i<MAX_CARDINALITY; i++) {
-      uint256 win = myWinning[i];
-      if (win > 0) {
-        Round memory round = roundRingBuffer[i];
-        bets[round.roundId][msg.sender][round.ethPrice] = 0;
-        round.notClaimed -= win;
-        roundRingBuffer[i] = round;
-        payout += win;
-      }
-    }
-    require(payout > 0, "Nothing to claim");
+    uint32 index = (_roundId - 1) % MAX_CARDINALITY;
+    Round memory round = roundRingBuffer[index];
+    require(round.roundId == _roundId && _roundId != 0, "roundId is not valid");
+
+    uint256 myDeposit = bets[round.roundId][msg.sender][round.ethPrice];
+    require(myDeposit > 0, "Nothing to claim");
+
+    uint256 totalDeposit = guessTotalDeposit[round.roundId][round.ethPrice];
+    uint256 payout = round.roundTotal.mul(myDeposit).div(totalDeposit).mul(19).div(20);
+
+    bets[round.roundId][msg.sender][round.ethPrice] = 0;
+    round.notClaimed -= payout;
+    roundRingBuffer[index] = round;
     payable(msg.sender).transfer(payout);
+
     return payout;
   }
 
   function generalInfo() external view returns (uint32, uint64, uint64, uint256) {
     uint64 betEndingTime = roundStartedAt + betPeriodSeconds;
     return (roundId, betEndingTime, betEndingTime + priceSetSeconds, roundTotal);
-  }
-
-  function priceInfo() external view returns (uint32, uint256, uint32) {
-    if (roundId == 1) {
-      return (1, 0, 0);
-    }
-    uint32 index = (roundId-2) % MAX_CARDINALITY;
-    Round memory lastRound = roundRingBuffer[index];
-    return (lastRound.roundId, lastRound.roundTotal, lastRound.ethPrice);
   }
 
   /* ============ Internal Functions ============ */
