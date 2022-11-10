@@ -117,7 +117,6 @@ contract PricePrizePool is Ownable, AccessControl {
 
   /// @notice Set the ethPrice
   function setFinalPrice() external onlyManagerOrOwner {
-      require(_isGuessTimeOver(), "Guess time is not over yet!");
 
       (
           /*uint80 roundID*/,
@@ -158,6 +157,10 @@ contract PricePrizePool is Ownable, AccessControl {
     for (uint8 i=0; i<MAX_CARDINALITY; i++) {
       Round memory round = roundRingBuffer[i];
       res[i] = bets[round.roundId][player][round.ethPrice];
+      if (res[i] > 0) {
+        uint256 totalDeposit = guessTotalDeposit[round.roundId][round.ethPrice];
+        res[i] = round.roundTotal.mul(res[i]).div(totalDeposit).mul(19).div(20);    
+      }
     }
     return res;
   }

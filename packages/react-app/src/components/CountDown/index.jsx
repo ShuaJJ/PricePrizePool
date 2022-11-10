@@ -28,7 +28,7 @@ export default function PPCountDown({ isPrize, generalInfo }) {
     }
   }
 
-  const countDown = ({ hours, minutes, seconds, completed }) => {
+  const countDown = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
       // Render a completed state
       return <div className="complete-text">{completedText}</div>;
@@ -36,7 +36,7 @@ export default function PPCountDown({ isPrize, generalInfo }) {
       // Render a countdown
       return (
         <div className="count-down">
-          <span className="count-down-item">{zeroPad(hours)}</span> :
+          <span className="count-down-item">{zeroPad(hours * days)}</span> :
           <span className="count-down-item">{zeroPad(minutes)}</span> :
           <span className="count-down-item">{zeroPad(seconds)}</span>
         </div>

@@ -9,7 +9,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   await deploy("PricePrizePool", {
     from: deployer,
-    args: [ 300, 10800 ],
+    args: [ 604800, 86400 ],
     log: true,
     waitConfirmations: 5,
   });

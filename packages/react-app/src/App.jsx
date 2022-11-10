@@ -146,11 +146,8 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Deposit</Link>
         </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">Prize</Link>
-        </Menu.Item>
-        <Menu.Item key="/test">
-          <Link to="/test">Debug</Link>
+        <Menu.Item key="/prizes">
+          <Link to="/prizes">Prize</Link>
         </Menu.Item>
       </Menu>
 
@@ -166,7 +163,7 @@ function App(props) {
             isCorrectNetwork={localChainId === selectedChainId}
           />
         </Route>
-        <Route path="/exampleui">
+        <Route path="/prizes">
           <Prize
             generalInfo={generalInfo}
             price={price}
@@ -177,17 +174,6 @@ function App(props) {
             readContracts={readContracts}
             writeContracts={writeContracts}
             isCorrectNetwork={localChainId === selectedChainId}
-          />
-        </Route>
-        <Route path="/test">
-          <Contract
-            name="PricePrizePool"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
           />
         </Route>
       </Switch>
